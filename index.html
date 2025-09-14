@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="icon" type="image/svg+xml" href="/logo.svg">
+<title>TamilStar</title>
+
+<style>
+/* Base styles */
+body { font-family: Arial, sans-serif; margin: 0; padding: 1rem; background: #fafafa; color: #222; box-sizing: border-box; }
+.site-header { display: flex; justify-content: center; align-items: center; height: 70px; background: #4b77c9; color: white; padding: 0 1rem; }
+.site-header h1 { margin: 0; font-size: 28px; text-align: center; }
+
+.search-container { display: flex; flex-direction: column; align-items: center; max-width: 360px; margin: 30px auto; gap: 10px; padding: 0 1rem; }
+#searchInput { width: 60%; padding: 12px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; outline: none; background: #fff; }
+.search-container button { padding: 12px; font-size: 16px; width: 100%; background: #4b77c9; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s ease; }
+.search-container button:hover { background: #0056b3; }
+#results { max-width: 100%; margin: 1rem auto; padding: 0 1rem; box-sizing: border-box; }
+
+/* TamilPrint entries */
+.M1 { display: flex; flex-direction: row; align-items: flex-start; padding: 0.8rem 0; border-bottom: 1px solid #ddd; gap: 10px; }
+.M1 img { width: 80px; height: 60px; object-fit: cover; flex-shrink: 0; border-radius: 4px; }
+.M1 .left { flex: 1; flex-direction: column; gap: 4px; overflow: hidden; }
+.M1 .left a { font-weight: 500; font-size: 15px; color: #004a99; text-decoration: none; overflow: hidden; text-overflow: ellipsis; }
+.M1 .left span.size { font-size: 13px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* KuttyMovies */
+#years { margin: 15px auto; border-collapse: collapse; width: 90%; max-width: 400px; background: #fff; border: 1px solid #ccc; }
+#years td { border-bottom: 1px solid #ccc; padding: 12px; text-align: center; cursor: pointer; background: #fff; color: #0077b6; font-weight: bold; transition: background 0.2s, color 0.2s; }
+#years td:hover { background: #0077b6; color: #fff; }
+#contentTable { width: 95%; margin: 10px auto; border-collapse: collapse; background: #fff; }
+#contentTable td { vertical-align: top; padding: 6px; }
+#contentTable img { max-width: 100%; height: auto; border-radius: 6px; }
+#contentTable a { color: #4b77c9; font-weight: 300; text-decoration: none; word-break: break-word; display: inline-block; margin: 4px 0; }
+#contentTable a:hover { color: #005f86; text-decoration: underline; }
+#contentTable a:visited { color: #5a5a5a; }
+#backBtn { display: none; margin: 15px auto; padding: 12px 18px; cursor: pointer; background: #4b77c9; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; width: 90%; max-width: 320px; text-align: center; }
+#backBtn:hover { background: #005f86; }
+
+/* Loading Dots */
+#loadingDots { display: none; justify-content: center; gap: 6px; margin: 20px auto; }
+#loadingDots div { width: 12px; height: 12px; background: #8fcff2; border-radius: 50%; animation: bounce 0.6s infinite alternate; }
+#loadingDots div:nth-child(2) { animation-delay: 0.2s; }
+#loadingDots div:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+
+/* Custom Alert */
+.custom-alert { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+.custom-alert.hidden { display: none; }
+.alert-box { background: #fff; padding: 20px 25px; border-radius: 8px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.2); max-width: 90%; box-sizing: border-box; }
+.alert-box button { margin-top: 10px; padding: 10px 16px; background: #e91e63; color: white; border: none; border-radius: 5px; cursor: pointer; }
+.alert-box button:hover { background: #d81b60; }
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .site-header h1 { font-size: 24px; }
+  #searchInput { font-size: 15px; padding: 10px 12px; }
+  .search-container button { font-size: 15px; padding: 10px; }
+  .M1 { flex-direction: row; gap: 8px; }
+  .M1 img { width: 90px; height: 110px; }
+  .M1 .left a { font-size: 14px; }
+  .M1 .left span.size { font-size: 12px; }
+}
+</style>
+
+<header class="site-header">
+  <h1 id="animatedTitle">TamilStar</h1>
+</header>
+
+<div class="search-container">
+  <input type="text" id="searchInput" placeholder="Search Movies...." />
+  <button onclick="performSearch()">Search</button>
+</div>
+<hr/>
+
+
+  <!-- Loading Dots Modal -->
+<div id="loadingModal" class="custom-alert hidden">
+  <div class="alert-box" style="background:transparent; box-shadow:none;">
+    <div id="loadingDots" style="display:flex; justify-content:center; gap:8px;">
+      <div style="width:22px; height:22px; background:#8fcff2; border-radius:50%; animation:bounce 0.6s infinite alternate;"></div>
+      <div style="width:22px; height:22px; background:#8fcff2; border-radius:50%; animation:bounce 0.6s infinite alternate 0.2s;"></div>
+      <div style="width:22px; height:22px; background:#8fcff2; border-radius:50%; animation:bounce 0.6s infinite alternate 0.4s;"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+</style>
+
+<div id="results"></div>
+
+<div id="customAlert" class="custom-alert hidden">
+  <div class="alert-box">
+    <p id="alertMessage">Alert goes here</p>
+    <button onclick="closeAlert()">OK</button>
+  </div>
+</div>
+
+<table id="years"> 
+ <tr><td data-url="2025-tamil-movies.html">Tamil 2025 Movies</td></tr>
+    <tr><td data-url="2024-tamil-movies.html">Tamil 2024 Movies</td></tr>
+    <tr><td data-url="2023-tamil-movies.html">Tamil 2023 Movies</td></tr>
+    <tr><td data-url="2022-tamil-movies.html">Tamil 2022 Movies</td></tr>
+    <tr><td data-url="2021-tamil-movies.html">Tamil 2021 Movies</td></tr>
+    <tr><td data-url="2020-tamil-movies.html">Tamil 2020 Movies</td></tr>
+    <tr><td data-url="2019-tamil-movies.html">Tamil 2019 Movies</td></tr>
+    <tr><td data-url="2018-tamil-movies.html">Tamil 2018 Movies</td></tr>
+    <tr><td data-url="2017-tamil-movies.html">Tamil 2017 Movies</td></tr>
+    <tr><td data-url="2016-tamil-movies.html">Tamil 2016 Movies</td></tr>
+    <tr><td data-url="2015-tamil-movies.html">Tamil 2015 Movies</td></tr>
+    <tr><td data-url="2014-tamil-movies.html">Tamil 2014 Movies</td></tr>
+    <tr><td data-url="2013-tamil-movies.html">Tamil 2013 Movies</td></tr>
+    <tr><td data-url="2012-tamil-movies.html">Tamil 2012 Movies</td></tr>
+    <tr><td data-url="2011-tamil-movies.html">Tamil 2011 Movies</td></tr>
+    <tr><td data-url="2010-tamil-movies.html">Tamil 2010 Movies</td></tr>
+    <tr><td data-url="2009-tamil-movies.html">Tamil 2009 Movies</td></tr>
+    <tr><td data-url="2008-tamil-movies.html">Tamil 2008 Movies</td></tr>
+    <tr><td data-url="2007-tamil-movies.html">Tamil 2007 Movies</td></tr>
+    <tr><td data-url="2006-tamil-movies.html">Tamil 2006 Movies</td></tr>
+    <tr><td data-url="2005-tamil-movies.html">Tamil 2005 Movies</td></tr>
+    <tr><td data-url="2004-tamil-movies.html">Tamil 2004 Movies</td></tr>
+    <tr><td data-url="2003-tamil-movies.html">Tamil 2003 Movies</td></tr>
+    <tr><td data-url="2002-tamil-movies.html">Tamil 2002 Movies</td></tr>
+    <tr><td data-url="2001-tamil-movies.html">Tamil 2001 Movies</td></tr>
+    <tr><td data-url="2000-tamil-movies.html">Tamil 2000 Movies</td></tr> 
+</table>
+
+<table id="contentTable"></table>
+<button id="backBtn" onclick="goBackKutty()">Back</button>
+
+<!-- KuttyMovies Script -->
+<script>
+const pageHistoryKutty = [];
+const baseUrlKutty = 'https://kuttymovies.free' ;
+
+// Show / Hide loading modal
+function showLoadingKutty() {
+  document.getElementById('loadingModal').classList.remove('hidden');
+}
+function hideLoadingKutty() {
+  document.getElementById('loadingModal').classList.add('hidden');
+}
+
+// Replace specific text in container
+function replaceTextContentKutty(container) {
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
+  const regex = /isaiDub(\.io)?/gi;
+  let node;
+  while(node = walker.nextNode()) {
+    node.nodeValue = node.nodeValue.replace(regex, "Movies Aro ");
+  }
+}
+
+// Fix image src paths
+function fixImagesKutty(container) {
+  container.querySelectorAll("img").forEach(img => {
+    let src = img.getAttribute("src");
+    if(src && !src.startsWith("http")) img.src = baseUrlKutty + src;
+  });
+}
+
+// Fetch HTML using proxies
+async function fetchWithProxiesKutty(fullUrl) {
+  const proxyList = [
+    url => 'https://api.allorigins.win/get?url=${encodeURIComponent(url)}',
+    url => 'https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}'
+  ];
+  for(const proxy of proxyList) {
+    const apiUrl = proxy(fullUrl);
+    try {
+      const response = await fetch(apiUrl);
+      if(!response.ok) continue;
+      if(apiUrl.includes("allorigins")) {
+        const data = await response.json();
+        return data.contents;
+      } else return await response.text();
+    } catch(e) { continue; }
+  }
+  throw new Error("All proxies failed.");
+}
+
+// Load a page
+async function loadPageKutty(relativePath, isBack=false) {
+  showLoadingKutty();
+  const table = document.getElementById("contentTable");
+
+  if(!isBack && (pageHistoryKutty.length === 0 || pageHistoryKutty[pageHistoryKutty.length - 1] !== relativePath)) {
+    pageHistoryKutty.push(relativePath);
+  }
+
+  const fullUrl = relativePath.startsWith("http") ? relativePath : baseUrlKutty + "/" + relativePath;
+
+  try {
+    const html = await fetchWithProxiesKutty(fullUrl);
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    let rowsHTML = "";
+    let stopMenu = false;
+
+    doc.querySelectorAll("img.pr").forEach(img => {
+      let src = img.getAttribute("src");
+      if(src && !src.startsWith("http")) src = baseUrlKutty + src;
+      rowsHTML += `<tr><td><img src="${src}" alt="${img.alt || 'poster'}" style="max-width:200px; border-radius:8px;"></td></tr>`;
+    });
+
+    Array.from(doc.querySelectorAll("div.menu, div.description, div.title, div.menu1")).forEach(div => {
+      if(div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
+      if(stopMenu && div.classList.contains("menu")) return;
+      if(div.classList.contains("menu") || div.classList.contains("description")) {
+        rowsHTML += `<tr><td>${div.outerHTML}</td></tr>`;
+      }
+      if(div.classList.contains("menu1")) {
+        let next = div.nextElementSibling;
+        while(next) {
+          if(next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
+            if(next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) {
+              next = next.nextElementSibling; 
+              continue;
+            }
+            rowsHTML += `<tr><td>${next.outerHTML}</td></tr>`;
+          }
+          next = next.nextElementSibling;
+        }
+      }
+    });
+
+    table.innerHTML = rowsHTML;
+    replaceTextContentKutty(table);
+    fixImagesKutty(table);
+
+    table.querySelectorAll("a[href]").forEach(a => {
+      let href = a.getAttribute("href");
+      if(!href) return;
+      if(href.startsWith("?page=")) {
+        const currentPage = relativePath.split("?")[0];
+        href = currentPage + href;
+      }
+      const digitMatch = href.match(/(\d{4,6})$/);
+      if(digitMatch) {
+        const downloadId = digitMatch[1];
+        href = 'https://download.streampage.online/download/${downloadId}';
+        a.addEventListener("click", e => { 
+          e.preventDefault(); 
+          loadDownloadPageKutty(href); 
+        });
+      } else {
+        a.addEventListener("click", e => { 
+          e.preventDefault(); 
+          loadPageKutty(href); 
+        });
+      }
+    });
+
+    hideLoadingKutty();
+    document.getElementById("years").style.display = "none";
+    document.getElementById("backBtn").style.display = "block";
+
+  } catch(e) {
+    table.innerHTML = `<tr><td>❌ Failed to load content.</td></tr>`;
+    hideLoadingKutty();
+  }
+}
+
+// Load download page
+async function loadDownloadPageKutty(fullUrl) {
+  showLoadingKutty();
+  const table = document.getElementById("contentTable");
+
+  try {
+    const html = await fetchWithProxiesKutty(fullUrl);
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    let rowsHTML = "";
+    let stopMenu = false;
+
+    doc.querySelectorAll("img.pr").forEach(img => {
+      let src = img.getAttribute("src");
+      if(src && !src.startsWith("http")) src = baseUrlKutty + src;
+      rowsHTML += `<tr><td><img src="${src}" alt="${img.alt || 'poster'}" style="max-width:200px; border-radius:8px;"></td></tr>`;
+    });
+
+    Array.from(doc.querySelectorAll("div.menu, div.description, div.title, div.menu1")).forEach(div => {
+      if(div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
+      if(stopMenu && div.classList.contains("menu")) return;
+      if(div.classList.contains("menu") || div.classList.contains("description")) {
+        rowsHTML += `<tr><td>${div.outerHTML}</td></tr>`;
+      }
+      if(div.classList.contains("menu1")) {
+        let next = div.nextElementSibling;
+        while(next) {
+          if(next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
+            if(next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) { 
+              next = next.nextElementSibling; 
+              continue; 
+            }
+            rowsHTML += `<tr><td>${next.outerHTML}</td></tr>`;
+          }
+          next = next.nextElementSibling;
+        }
+      }
+    });
+
+    table.innerHTML = rowsHTML;
+    replaceTextContentKutty(table);
+    fixImagesKutty(table);
+
+    table.querySelectorAll("a[href]").forEach(a => {
+      const originalHref = a.href;
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        window.open("#", "_blank");
+        window.location.href = originalHref;
+      });
+    });
+
+    hideLoadingKutty();
+    document.getElementById("years").style.display = "none";
+    document.getElementById("backBtn").style.display = "block";
+
+  } catch(e) {
+    table.innerHTML = `<tr><td>❌ Failed to load download page.</td></tr>`;
+    hideLoadingKutty();
+  }
+}
+
+// Go back in history
+function goBackKutty() {
+  if(pageHistoryKutty.length > 1) {
+    pageHistoryKutty.pop();
+    const previous = pageHistoryKutty.pop();
+    loadPageKutty(previous, true);
+  } else {
+    document.getElementById("years").style.display = "table";
+    document.getElementById("backBtn").style.display = "none";
+    document.getElementById("contentTable").innerHTML = "";
+  }
+}
+
+// Add click handlers for year table
+document.querySelectorAll("#years td").forEach(td => {
+  td.addEventListener("click", () => loadPageKutty(td.dataset.url));
+});
+</script>
+
+<!-- TamilPrint Script -->
+<!-- TamilPrint Script -->
+<script>
+const baseUrl = 'https://www.tamilprint49.art/';
+
+function showLoadingModal() {
+  document.getElementById('loadingModal').classList.remove('hidden');
+}
+function hideLoadingModal() {
+  document.getElementById('loadingModal').classList.add('hidden');
+}
+
+function showAlert(message){
+  document.getElementById('alertMessage').innerText = message;
+  document.getElementById('customAlert').classList.remove('hidden');
+}
+function closeAlert(){ document.getElementById('customAlert').classList.add('hidden'); }
+
+async function retry(fn, retries = 3, delay = 1000){
+  for(let i=0;i<retries;i++){
+    try{ return await fn(); }
+    catch(e){ if(i < retries-1) await new Promise(res => setTimeout(res, delay)); }
+  }
+  throw new Error('All retries failed.');
+}
+
+async function performSearch(){
+  const query = document.getElementById('searchInput').value.trim();
+  if(!query){ showAlert('Please enter Movie name.'); return; }
+  const searchUrl = `${baseUrl}search.php?source=${encodeURIComponent(query)}`;
+  await fetchAndDisplay(searchUrl);
+}
+
+async function fetchAndDisplay(url){
+  const proxyUrl = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`;
+  showLoadingModal(); // ✅ Use the unified loading modal
+  try{
+    const htmlText = await retry(async()=>{
+      const response = await fetch(proxyUrl);
+      if(!response.ok) throw new Error('Fetch failed');
+      return await response.text();
+    });
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText,'text/html');
+    const container = document.createElement('div');
+
+    const m1s = doc.querySelectorAll('.M1');
+    if(!m1s.length) throw new Error('No .M1 elements found');
+
+    m1s.forEach(m1=>{
+      const clone = m1.cloneNode(true);
+      clone.querySelectorAll("a, td, div, span").forEach(el=>{
+        el.childNodes.forEach(node=>{
+          if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
+            .replace(/TamilPrint/gi,"TamilStar - Tamil")
+            .replace(/Tamil Print/gi,"TamilStar - Tamil");
+        });
+      });
+      container.appendChild(clone);
+    });
+
+    fixLinksAndImages(container);
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('results').appendChild(container);
+
+  } catch(e){
+    document.getElementById('results').innerHTML = "⚠️ Not Found... Refresh or try again later.";
+  } finally {
+    hideLoadingModal(); // ✅ Hide modal after loading
+  }
+}
+
+function fixLinksAndImages(container){
+  container.querySelectorAll('a').forEach(link=>{
+    let href = link.getAttribute('href'); if(!href) return;
+    const match = href.match(/(\d{2,5})\/?$/);
+    if(match){
+      const fid = match[1];
+      link.href = `${baseUrl}filedownload.php?fid=${fid}`;
+      link.target = '_self';
+      link.addEventListener('click',()=>window.open('https://otieu.com/4/9529356','_blank'));
+    } else if(!href.startsWith('http')){
+      const fullUrl = baseUrl + href.replace(/^\/+/, '');
+      link.href = '#';
+      link.addEventListener('click', e=>{ e.preventDefault(); fetchAndDisplay(fullUrl); });
+    } else link.target = '_self';
+  });
+
+  container.querySelectorAll('img').forEach(img=>{
+    let src = img.getAttribute('src');
+    if(src && !src.startsWith('http')) img.src = baseUrl + src.replace(/^\/+/, '');
+  });
+
+  container.querySelectorAll("a, td, div, span").forEach(el=>{
+    el.childNodes.forEach(node=>{
+      if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
+        .replace(/TamilPrint/gi,"Movies Aro - Tamil")
+        .replace(/Tamil Print/gi,"Movies Aro - Tamil");
+    });
+  });
+}
+
+document.addEventListener("click", function(e){
+  if(e.target.tagName==="A" && e.target.href.includes("filedownload")){
+    const audio=document.getElementById("downloadAudio");
+    if(audio) audio.play();
+  }
+});
+
+const title="Movies Aro"; let i=0;
+function typeTitle(){
+  if(i<=title.length){
+    document.getElementById("animatedTitle").innerText = title.slice(0,i++);
+    setTimeout(typeTitle,120);
+  }
+}
+typeTitle();
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get("q");
+  if(q){ document.getElementById("searchInput").value = q; performSearch(); }
+});
+</script>
+
+<script>
+function activateTamilPrint() {
+  // Show TamilPrint search
+  document.querySelector('.search-container').style.display = 'flex';
+  document.getElementById('results').style.display = 'block';
+  
+  // Hide KuttyMovies content
+  document.getElementById('years').style.display = 'none';
+  document.getElementById('contentTable').style.display = 'none';
+  document.getElementById('backBtn').style.display = 'none';
+}
+
+function activateKuttyMovies() {
+  // Hide TamilPrint search/results
+  document.querySelector('.search-container').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  
+  // Show KuttyMovies content
+  document.getElementById('years').style.display = 'table';
+  document.getElementById('contentTable').style.display = 'table';
+}
+
+// Hook into TamilPrint search button
+document.querySelector('.search-container button').addEventListener('click', ()=>{
+  activateTamilPrint();
+  performSearch(); // TamilPrint search function
+});
+
+// Hook into KuttyMovies year clicks
+document.querySelectorAll("#years td").forEach(td=>{
+  td.addEventListener("click", ()=>{
+    activateKuttyMovies();
+    loadPageKutty(td.dataset.url); // KuttyMovies loader
+  });
+});
+
+// When KuttyMovies "Back" button is clicked
+document.getElementById('backBtn').addEventListener('click', ()=>{
+  goBackKutty();
+  if(document.getElementById('contentTable').innerHTML === '') {
+    // no more Kutty content, show years table
+    document.getElementById('years').style.display = 'table';
+  }
+});
+</script>
+<div style="text-align:center; margin: 10px;">
+  <button id="switchBtn" style="padding:10px 20px; font-size:16px; border-radius:6px; border:none; background:#4b77c9; color:white; cursor:pointer;">
+   Yearly wise
+  </button>
+<br><br/>
+ 
+
+</div>
+<script>
+let activePlatform = 'TamilPrint'; // Default active platform
+
+const switchBtn = document.getElementById('switchBtn');
+switchBtn.addEventListener('click', () => {
+  if(activePlatform === 'TamilPrint') {
+    // Switch to KuttyMovies
+    activePlatform = 'KuttyMovies';
+    switchBtn.innerText = 'Search Movies';
+
+    // Hide TamilPrint
+    document.querySelector('.search-container').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+
+    // Show KuttyMovies
+    document.getElementById('years').style.display = 'table';
+    document.getElementById('contentTable').style.display = 'table';
+    document.getElementById('backBtn').style.display = 'none';
+  } else {
+    // Switch to TamilPrint
+    activePlatform = 'TamilPrint';
+    switchBtn.innerText = 'Yearly wise';
+
+    // Show TamilPrint
+    document.querySelector('.search-container').style.display = 'flex';
+    document.getElementById('results').style.display = 'block';
+
+    // Hide KuttyMovies
+    document.getElementById('years').style.display = 'none';
+    document.getElementById('contentTable').style.display = 'none';
+    document.getElementById('backBtn').style.display = 'none';
+  }
+});
+
+// Ensure initial state: TamilPrint visible, KuttyMovies hidden
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('.search-container').style.display = 'flex';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('years').style.display = 'none';
+  document.getElementById('contentTable').style.display = 'none';
+  document.getElementById('backBtn').style.display = 'none';
+});
+</script>
+<style>
+    /* Telegram icon pulse */
+  #telegramWrapper {
+    position: relative;
+    bottom: 10px;       
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    text-align: center;
+  }
+  #telegramWrapper a { position: relative; display: inline-block; }
+  .telegramIcon { width: 150px; height: 150px; border-radius: 50%; z-index: 2; position: relative; }
+  .pulse {
+   
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    background: rgb(0 136 204);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 1.5s infinite;
+    z-index: 1;
+  }
+  @keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.4; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+  }
+</style>
+
+
+<script>
+    // Disable right-click
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+// Disable keyboard shortcuts for DevTools
+document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey && (e.key === "u" || e.key === "U" || e.key === "s" || e.key === "S" || e.key === "i" || e.key === "I" || e.key === "j" || e.key === "J" || e.key === "c" || e.key === "C")) {
+        e.preventDefault();
+    }
+});
+
+// Disable F12, Ctrl+Shift+I, Ctrl+Shift+J
+document.onkeydown = function (e) {
+    if (e.keyCode == 123) { return false; } // F12
+    if (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) { return false; } // Ctrl+Shift+I/J
+};
+  
+  </script>
+<script>
+    const blockScreen = document.getElementById('blockScreen');
+
+    function detectDevTools() {
+      const widthDiff = window.outerWidth - window.innerWidth;
+      const heightDiff = window.outerHeight - window.innerHeight;
+      const threshold = 120;
+
+      // True if dimensions indicate DevTools or if debugger gets trapped
+      let devtoolsOpen = widthDiff > threshold || heightDiff > threshold;
+
+      // Mobile-specific trap
+      const trap = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (trap) {
+        const start = new Date();
+        debugger;
+        const end = new Date();
+        if (end - start > 100) devtoolsOpen = true;
+      }
+
+      if (devtoolsOpen) {
+       window.location.href = "https://c.tenor.com/x4V9PRp9R-0AAAAC/tenor.gif"; // Replace with your redirect URL
+
+      } else {
+        blockScreen.style.display = 'none';
+        document.body.style.pointerEvents = 'auto';
+      }
+    }
+
+    setInterval(detectDevTools, 600);
+
+    // Block right-click
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    // Block common dev hotkeys
+    document.addEventListener('keydown', function (event) {
+      if (
+        event.key === 'F12' ||
+        (event.ctrlKey && event.shiftKey && ['I', 'J', 'C'].includes(event.key.toUpperCase())) ||
+        (event.ctrlKey && event.key.toLowerCase() === 'u')
+      ) {
+        event.preventDefault();
+      }
+    });
+  </script>
+
+
+
+
+</html>
