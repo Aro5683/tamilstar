@@ -304,14 +304,46 @@ async function loadDownloadPageKutty(fullUrl) {
     replaceTextContentKutty(table);
     fixImagesKutty(table);
 
-    table.querySelectorAll("a[href]").forEach(a => {
-      const originalHref = a.href;
-      a.addEventListener("click", e => {
-        e.preventDefault();
-        window.open("https://facebook.com", "_blank");
-        window.location.href = originalHref;
-      });
-    });
+   table.querySelectorAll("a[href]").forEach(a => {
+  const originalHref = a.href;
+  a.addEventListener("click", e => {
+    e.preventDefault();
+    showPleaseWaitPopup();   // show the same popup
+    window.location.href = originalHref; // continue navigation
+  });
+});
+
+// Popup function (same as before)
+function showPleaseWaitPopup(){
+  let popup = document.getElementById('please-wait-popup');
+  if(!popup){
+    popup = document.createElement('div');
+    popup.id = 'please-wait-popup';
+    popup.innerHTML = `<div class="popup-content">Please wait...</div>`;
+    document.body.appendChild(popup);
+  }
+  popup.style.display = 'flex';
+}
+<style>
+   #please-wait-popup {
+  position: fixed;
+  top: 0; left: 0; 
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+#please-wait-popup .popup-content {
+  background: white;
+  padding: 20px 40px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+     </style>
 
     hideLoadingKutty();
     document.getElementById("years").style.display = "none";
@@ -417,19 +449,43 @@ async function fetchAndDisplay(url){
 
 function fixLinksAndImages(container){
   container.querySelectorAll('a').forEach(link=>{
-    let href = link.getAttribute('href'); if(!href) return;
+    let href = link.getAttribute('href'); 
+    if(!href) return;
+
     const match = href.match(/(\d{2,5})\/?$/);
     if(match){
       const fid = match[1];
       link.href = `${baseUrl}filedownload.php?fid=${fid}`;
       link.target = '_self';
-      link.addEventListener('click',()=>window.open('https://google.com','_blank'));
+      link.addEventListener('click', (e)=>{
+        e.preventDefault();
+        showPleaseWaitPopup();
+      });
     } else if(!href.startsWith('http')){
       const fullUrl = baseUrl + href.replace(/^\/+/, '');
       link.href = '';
-      link.addEventListener('click', e=>{ e.preventDefault(); fetchAndDisplay(fullUrl); });
-    } else link.target = '_self';
+      link.addEventListener('click', e=>{
+        e.preventDefault(); 
+        showPleaseWaitPopup();
+        fetchAndDisplay(fullUrl);
+      });
+    } else {
+      link.target = '_self';
+    }
   });
+}
+
+// Create and show popup
+function showPleaseWaitPopup(){
+  let popup = document.getElementById('please-wait-popup');
+  if(!popup){
+    popup = document.createElement('div');
+    popup.id = 'please-wait-popup';
+    popup.innerHTML = `<div class="popup-content">Please wait...</div>`;
+    document.body.appendChild(popup);
+  }
+  popup.style.display = 'flex';
+}
 
   container.querySelectorAll('img').forEach(img=>{
     let src = img.getAttribute('src');
