@@ -3,7 +3,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="icon" type="image/svg+xml" href="/logo.svg">
-<title>Movies Aro - Tamil</title>
+<title>TAMILSTAR</title>
 
 <style>
 /* Base styles */
@@ -64,7 +64,7 @@ body { font-family: Arial, sans-serif; margin: 0; padding: 1rem; background: #fa
 </style>
 
 <header class="site-header">
-  <h1 id="animatedTitle">Movies Aro</h1>
+  <h1 id="animatedTitle">TAMILSTAR</h1>
 </header>
 
 <div class="search-container">
@@ -149,7 +149,7 @@ function replaceTextContentKutty(container) {
   const regex = /isaiDub(\.io)?/gi;
   let node;
   while(node = walker.nextNode()) {
-    node.nodeValue = node.nodeValue.replace(regex, "Movies Aro ");
+    node.nodeValue = node.nodeValue.replace(regex, "TAMILSTAR ");
   }
 }
 
@@ -306,11 +306,12 @@ async function loadDownloadPageKutty(fullUrl) {
 
     table.querySelectorAll("a[href]").forEach(a => {
       const originalHref = a.href;
-      a.addEventListener("click", e => {
-        e.preventDefault();
-       
-        window.location.href = originalHref;
-      });
+a.addEventListener("click", e => {
+  e.preventDefault();
+  showPleaseWaitPopup();             // show "Please wait..." popup
+  window.open(originalHref, "_blank"); // open target in new tab
+});
+     
     });
 
     hideLoadingKutty();
@@ -397,8 +398,8 @@ async function fetchAndDisplay(url){
       clone.querySelectorAll("a, td, div, span").forEach(el=>{
         el.childNodes.forEach(node=>{
           if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
-            .replace(/TamilPrint/gi,"Movies Aro - Tamil")
-            .replace(/Tamil Print/gi,"Movies Aro - Tamil");
+            .replace(/TamilPrint/gi,"TAMILSTAR")
+            .replace(/Tamil Print/gi,"TAMILSTAR");
         });
       });
       container.appendChild(clone);
@@ -439,8 +440,8 @@ function fixLinksAndImages(container){
   container.querySelectorAll("a, td, div, span").forEach(el=>{
     el.childNodes.forEach(node=>{
       if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
-        .replace(/TamilPrint/gi,"Movies Aro - Tamil")
-        .replace(/Tamil Print/gi,"Movies Aro - Tamil");
+        .replace(/TamilPrint/gi,"TAMILSTAR")
+        .replace(/Tamil Print/gi,"TAMILSTAR");
     });
   });
 }
@@ -452,7 +453,7 @@ document.addEventListener("click", function(e){
   }
 });
 
-const title="Movies Aro"; let i=0;
+const title="TAMILSTAR"; let i=0;
 function typeTitle(){
   if(i<=title.length){
     document.getElementById("animatedTitle").innerText = title.slice(0,i++);
@@ -518,17 +519,7 @@ document.getElementById('backBtn').addEventListener('click', ()=>{
    Yearly wise
   </button>
 <br><br/>
-  <button 
-  style="padding:10px 20px; font-size:16px; border-radius:6px; border:none; background:#714bc9; color:white; cursor:pointer;"
-  onclick="window.open('https://moviesaro.netlify.app/', '_self')">
-  Go to Movies Aro (OLD)
-</button>
-<br><br/>
-  <button 
-  style="padding:10px 20px; font-size:16px; border-radius:6px; border:none; background:#cf8669; color:white; cursor:pointer;"
-  onclick="window.open('https://moviesarodub.netlify.app', '_blank')">
-  All Tamil Dubbed Movies
-</button>
+  
 </div>
 <script>
 let activePlatform = 'TamilPrint'; // Default active platform
@@ -603,12 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
     100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
   }
 </style>
-<div id="telegramWrapper">
-  <a href="https://telegram.me/+V8nUElyN93U1ZTBl" target="_blank">
-    <img src="https://cdnl.iconscout.com/lottie/premium/thumb/telegram-logo-animation-gif-download-10719950.gif" alt="Telegram Group" class="telegramIcon" />
-    <span class="pulse"></span>
-  </a>
-</div>
+
 
 <script>
     // Disable right-click
@@ -676,46 +662,7 @@ document.onkeydown = function (e) {
     });
   </script>
 
- <script type="module">
-  // Import Firebase core + database
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-analytics.js";
-  import { getDatabase, ref, set, onDisconnect, onValue } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-database.js";
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCnFzRuiePFLp7rHV9ITXFl7XSPb-PAydI",
-    authDomain: "moviesaro.firebaseapp.com",
-    databaseURL: "https://moviesaro-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "moviesaro",
-    storageBucket: "moviesaro.appspot.com", // corrected domain
-    messagingSenderId: "988768227464",
-    appId: "1:988768227464:web:2afbfc7f6f000d4f610f3d",
-    measurementId: "G-CDJZBSR54T"
-  };
-
-  // Init Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getDatabase(app);
-
-  // Create random user ID for this session
-  const userId = Math.random().toString(36).substring(2);
-  const userRef = ref(db, 'onlineUsers/' + userId);
-
-  // Mark user online
-  set(userRef, true);
-
-  // Auto-remove on disconnect
-  onDisconnect(userRef).remove();
-
-  // Live count display
-  const countRef = ref(db, 'onlineUsers');
-  onValue(countRef, (snapshot) => {
-    const count = snapshot.size || snapshot.numChildren();
-    document.getElementById('userCount').textContent = count;
-  });
-</script>
 
 
 
