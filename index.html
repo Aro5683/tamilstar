@@ -149,7 +149,7 @@ function replaceTextContentKutty(container) {
   const regex = /isaiDub(\.io)?/gi;
   let node;
   while(node = walker.nextNode()) {
-    node.nodeValue = node.nodeValue.replace(regex, "Movies Aro ");
+    node.nodeValue = node.nodeValue.replace(regex, "TamilStar ");
   }
 }
 
@@ -439,8 +439,8 @@ function fixLinksAndImages(container){
   container.querySelectorAll("a, td, div, span").forEach(el=>{
     el.childNodes.forEach(node=>{
       if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
-        .replace(/TamilPrint/gi,"Movies Aro - Tamil")
-        .replace(/Tamil Print/gi,"Movies Aro - Tamil");
+        .replace(/TamilPrint/gi,"TamilStar")
+        .replace(/Tamil Print/gi,"TamilStar");
     });
   });
 }
@@ -452,7 +452,7 @@ document.addEventListener("click", function(e){
   }
 });
 
-const title="Movies Aro"; let i=0;
+const title="TamilStar"; let i=0;
 function typeTitle(){
   if(i<=title.length){
     document.getElementById("animatedTitle").innerText = title.slice(0,i++);
