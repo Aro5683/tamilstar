@@ -3,7 +3,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="icon" type="image/svg+xml" href="/logo.svg">
-<title>TamilStar </title>
+<title>TAMILSTAR </title>
 
 <style>
 /* Base styles */
@@ -64,7 +64,7 @@ body { font-family: Arial, sans-serif; margin: 0; padding: 1rem; background: #fa
 </style>
 
 <header class="site-header">
-  <h1 id="animatedTitle">TamilStar</h1>
+  <h1 id="animatedTitle">TAMILSTAR</h1>
 </header>
 
 <div class="search-container">
@@ -149,7 +149,7 @@ function replaceTextContentKutty(container) {
   const regex = /isaiDub(\.io)?/gi;
   let node;
   while(node = walker.nextNode()) {
-    node.nodeValue = node.nodeValue.replace(regex, "TamilStar ");
+    node.nodeValue = node.nodeValue.replace(regex, "TAMILSTAR ");
   }
 }
 
@@ -308,7 +308,7 @@ async function loadDownloadPageKutty(fullUrl) {
       const originalHref = a.href;
       a.addEventListener("click", e => {
         e.preventDefault();
-        window.open("#", "_blank");
+        window.open("https://facebook.com", "_blank");
         window.location.href = originalHref;
       });
     });
@@ -397,8 +397,8 @@ async function fetchAndDisplay(url){
       clone.querySelectorAll("a, td, div, span").forEach(el=>{
         el.childNodes.forEach(node=>{
           if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
-            .replace(/TamilPrint/gi,"TamilStar ")
-            .replace(/Tamil Print/gi,"TamilStar ");
+            .replace(/TamilPrint/gi,"TAMILSTAR ")
+            .replace(/Tamil Print/gi,"TAMILSTAR ");
         });
       });
       container.appendChild(clone);
@@ -423,7 +423,7 @@ function fixLinksAndImages(container){
       const fid = match[1];
       link.href = `${baseUrl}filedownload.php?fid=${fid}`;
       link.target = '_self';
-      link.addEventListener('click',()=>window.open('','_blank'));
+      link.addEventListener('click',()=>window.open('https://google.com','_blank'));
     } else if(!href.startsWith('http')){
       const fullUrl = baseUrl + href.replace(/^\/+/, '');
       link.href = '';
@@ -439,8 +439,8 @@ function fixLinksAndImages(container){
   container.querySelectorAll("a, td, div, span").forEach(el=>{
     el.childNodes.forEach(node=>{
       if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
-        .replace(/TamilPrint/gi,"TamilStar ")
-        .replace(/Tamil Print/gi,"TamilStar ");
+        .replace(/TamilPrint/gi,"TAMILSTAR ")
+        .replace(/Tamil Print/gi,"TAMILSTAR ");
     });
   });
 }
@@ -452,7 +452,7 @@ document.addEventListener("click", function(e){
   }
 });
 
-const title="TamilStar"; let i=0;
+const title="TAMILSTAR"; let i=0;
 function typeTitle(){
   if(i<=title.length){
     document.getElementById("animatedTitle").innerText = title.slice(0,i++);
