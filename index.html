@@ -85,6 +85,10 @@ body { font-family: Arial, sans-serif; margin: 0; padding: 1rem; background: #fa
 <header class="site-header">
   <h1 id="animatedTitle">TAMILSTAR</h1>
 </header>
+<!-- Please Wait Popup -->
+<div id="please-wait-popup">
+  <div class="popup-content">Please wait...</div>
+</div>
 
 <div class="search-container">
   <input type="text" id="searchInput" placeholder="Search Movies...." />
@@ -323,14 +327,15 @@ async function loadDownloadPageKutty(fullUrl) {
     replaceTextContentKutty(table);
     fixImagesKutty(table);
 
-   table.querySelectorAll("a[href]").forEach(a => {
+table.querySelectorAll("a[href]").forEach(a => {
   const originalHref = a.href;
   a.addEventListener("click", e => {
     e.preventDefault();
-    showPleaseWaitPopup();   // show the same popup
+    showPleaseWaitPopup();
     window.location.href = originalHref; // continue navigation
   });
 });
+
 
 // Popup function (same as before)
 function showPleaseWaitPopup(){
@@ -460,6 +465,7 @@ function fixLinksAndImages(container){
       link.addEventListener('click', (e)=>{
         e.preventDefault();
         showPleaseWaitPopup();
+        window.location.href = link.href;
       });
     } else if(!href.startsWith('http')){
       const fullUrl = baseUrl + href.replace(/^\/+/, '');
@@ -475,6 +481,7 @@ function fixLinksAndImages(container){
   });
 }
 
+
 // Create and show popup
 function showPleaseWaitPopup(){
   let popup = document.getElementById('please-wait-popup');
@@ -487,6 +494,17 @@ function showPleaseWaitPopup(){
   popup.style.display = 'flex';
 }
 
+function showPleaseWaitPopup() {
+  const popup = document.getElementById('please-wait-popup');
+  popup.style.display = 'flex';
+}
+
+function hidePleaseWaitPopup() {
+  const popup = document.getElementById('please-wait-popup');
+  popup.style.display = 'none';
+}
+
+   
   container.querySelectorAll('img').forEach(img=>{
     let src = img.getAttribute('src');
     if(src && !src.startsWith('http')) img.src = baseUrl + src.replace(/^\/+/, '');
