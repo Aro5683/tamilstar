@@ -85,10 +85,23 @@ body { font-family: Arial, sans-serif; margin: 0; padding: 1rem; background: #fa
 <header class="site-header">
   <h1 id="animatedTitle">TAMILSTAR</h1>
 </header>
-<!-- Please Wait Popup -->
+<!-- Please Wait Popup (already in your page) -->
 <div id="please-wait-popup">
   <div class="popup-content">Please wait...</div>
 </div>
+
+<script>
+function showPleaseWaitPopup() {
+  const popup = document.getElementById('please-wait-popup');
+  if (popup) popup.style.display = 'flex';
+}
+
+function hidePleaseWaitPopup() {
+  const popup = document.getElementById('please-wait-popup');
+  if (popup) popup.style.display = 'none';
+}
+</script>
+
 
 <div class="search-container">
   <input type="text" id="searchInput" placeholder="Search Movies...." />
@@ -332,9 +345,10 @@ table.querySelectorAll("a[href]").forEach(a => {
   a.addEventListener("click", e => {
     e.preventDefault();
     showPleaseWaitPopup();
-    window.location.href = originalHref; // continue navigation
+    window.location.href = originalHref;
   });
 });
+
 
 
 // Popup function (same as before)
@@ -459,27 +473,23 @@ function fixLinksAndImages(container){
 
     const match = href.match(/(\d{2,5})\/?$/);
     if(match){
-      const fid = match[1];
-      link.href = `${baseUrl}filedownload.php?fid=${fid}`;
-      link.target = '_self';
-      link.addEventListener('click', (e)=>{
-        e.preventDefault();
-        showPleaseWaitPopup();
-        window.location.href = link.href;
-      });
-    } else if(!href.startsWith('http')){
-      const fullUrl = baseUrl + href.replace(/^\/+/, '');
-      link.href = '';
-      link.addEventListener('click', e=>{
-        e.preventDefault(); 
-        showPleaseWaitPopup();
-        fetchAndDisplay(fullUrl);
-      });
-    } else {
-      link.target = '_self';
-    }
+  const fid = match[1];
+  link.href = `${baseUrl}filedownload.php?fid=${fid}`;
+  link.addEventListener('click', (e)=>{
+    e.preventDefault();
+    showPleaseWaitPopup();
+    window.location.href = link.href;
+  });
+} else if(!href.startsWith('http')){
+  const fullUrl = baseUrl + href.replace(/^\/+/, '');
+  link.href = '';
+  link.addEventListener('click', e=>{
+    e.preventDefault();
+    showPleaseWaitPopup();
+    fetchAndDisplay(fullUrl);
   });
 }
+
 
 
 // Create and show popup
