@@ -1,9 +1,9 @@
- <!doctype html>
+<!doctype html>
 <html lang="en">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="icon" type="image/svg+xml" href="/logo.svg">
-<title>TamilStar</title>
+<title>Movies Aro - Tamil</title>
 
 <style>
 /* Base styles */
@@ -64,7 +64,7 @@ body { font-family: Arial, sans-serif; margin: 0; padding: 1rem; background: #fa
 </style>
 
 <header class="site-header">
-  <h1 id="animatedTitle">TamilStar</h1>
+  <h1 id="animatedTitle">Movies Aro</h1>
 </header>
 
 <div class="search-container">
@@ -148,8 +148,8 @@ function replaceTextContentKutty(container) {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
   const regex = /isaiDub(\.io)?/gi;
   let node;
-  while (node = walker.nextNode()) {
-    node.nodeValue = node.nodeValue.replace(regex, "TamilStar ");
+  while(node = walker.nextNode()) {
+    node.nodeValue = node.nodeValue.replace(regex, "Movies Aro ");
   }
 }
 
@@ -157,7 +157,7 @@ function replaceTextContentKutty(container) {
 function fixImagesKutty(container) {
   container.querySelectorAll("img").forEach(img => {
     let src = img.getAttribute("src");
-    if (src && !src.startsWith("http")) img.src = baseUrlKutty + src;
+    if(src && !src.startsWith("http")) img.src = baseUrlKutty + src;
   });
 }
 
@@ -167,30 +167,26 @@ async function fetchWithProxiesKutty(fullUrl) {
     url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
     url => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`
   ];
-  for (const proxy of proxyList) {
+  for(const proxy of proxyList) {
     const apiUrl = proxy(fullUrl);
     try {
       const response = await fetch(apiUrl);
-      if (!response.ok) continue;
-      if (apiUrl.includes("allorigins")) {
+      if(!response.ok) continue;
+      if(apiUrl.includes("allorigins")) {
         const data = await response.json();
         return data.contents;
-      } else {
-        return await response.text();
-      }
-    } catch (e) {
-      continue;
-    }
+      } else return await response.text();
+    } catch(e) { continue; }
   }
   throw new Error("All proxies failed.");
 }
 
 // Load a page
-async function loadPageKutty(relativePath, isBack = false) {
+async function loadPageKutty(relativePath, isBack=false) {
   showLoadingKutty();
   const table = document.getElementById("contentTable");
 
-  if (!isBack && (pageHistoryKutty.length === 0 || pageHistoryKutty[pageHistoryKutty.length - 1] !== relativePath)) {
+  if(!isBack && (pageHistoryKutty.length === 0 || pageHistoryKutty[pageHistoryKutty.length - 1] !== relativePath)) {
     pageHistoryKutty.push(relativePath);
   }
 
@@ -204,24 +200,22 @@ async function loadPageKutty(relativePath, isBack = false) {
 
     doc.querySelectorAll("img.pr").forEach(img => {
       let src = img.getAttribute("src");
-      if (src && !src.startsWith("http")) src = baseUrlKutty + src;
+      if(src && !src.startsWith("http")) src = baseUrlKutty + src;
       rowsHTML += `<tr><td><img src="${src}" alt="${img.alt || 'poster'}" style="max-width:200px; border-radius:8px;"></td></tr>`;
     });
 
     Array.from(doc.querySelectorAll("div.menu, div.description, div.title, div.menu1")).forEach(div => {
-      if (div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
-      if (stopMenu && div.classList.contains("menu")) return;
-
-      if (div.classList.contains("menu") || div.classList.contains("description")) {
+      if(div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
+      if(stopMenu && div.classList.contains("menu")) return;
+      if(div.classList.contains("menu") || div.classList.contains("description")) {
         rowsHTML += `<tr><td>${div.outerHTML}</td></tr>`;
       }
-
-      if (div.classList.contains("menu1")) {
+      if(div.classList.contains("menu1")) {
         let next = div.nextElementSibling;
-        while (next) {
-          if (next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
-            if (next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) {
-              next = next.nextElementSibling;
+        while(next) {
+          if(next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
+            if(next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) {
+              next = next.nextElementSibling; 
               continue;
             }
             rowsHTML += `<tr><td>${next.outerHTML}</td></tr>`;
@@ -237,25 +231,23 @@ async function loadPageKutty(relativePath, isBack = false) {
 
     table.querySelectorAll("a[href]").forEach(a => {
       let href = a.getAttribute("href");
-      if (!href) return;
-
-      if (href.startsWith("?page=")) {
+      if(!href) return;
+      if(href.startsWith("?page=")) {
         const currentPage = relativePath.split("?")[0];
         href = currentPage + href;
       }
-
       const digitMatch = href.match(/(\d{4,6})$/);
-      if (digitMatch) {
+      if(digitMatch) {
         const downloadId = digitMatch[1];
         href = `https://download.streampage.online/download/${downloadId}`;
-        a.addEventListener("click", e => {
-          e.preventDefault();
-          loadDownloadPageKutty(href);
+        a.addEventListener("click", e => { 
+          e.preventDefault(); 
+          loadDownloadPageKutty(href); 
         });
       } else {
-        a.addEventListener("click", e => {
-          e.preventDefault();
-          loadPageKutty(href);
+        a.addEventListener("click", e => { 
+          e.preventDefault(); 
+          loadPageKutty(href); 
         });
       }
     });
@@ -264,7 +256,7 @@ async function loadPageKutty(relativePath, isBack = false) {
     document.getElementById("years").style.display = "none";
     document.getElementById("backBtn").style.display = "block";
 
-  } catch (e) {
+  } catch(e) {
     table.innerHTML = `<tr><td>❌ Failed to load content.</td></tr>`;
     hideLoadingKutty();
   }
@@ -283,25 +275,23 @@ async function loadDownloadPageKutty(fullUrl) {
 
     doc.querySelectorAll("img.pr").forEach(img => {
       let src = img.getAttribute("src");
-      if (src && !src.startsWith("http")) src = baseUrlKutty + src;
+      if(src && !src.startsWith("http")) src = baseUrlKutty + src;
       rowsHTML += `<tr><td><img src="${src}" alt="${img.alt || 'poster'}" style="max-width:200px; border-radius:8px;"></td></tr>`;
     });
 
     Array.from(doc.querySelectorAll("div.menu, div.description, div.title, div.menu1")).forEach(div => {
-      if (div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
-      if (stopMenu && div.classList.contains("menu")) return;
-
-      if (div.classList.contains("menu") || div.classList.contains("description")) {
+      if(div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
+      if(stopMenu && div.classList.contains("menu")) return;
+      if(div.classList.contains("menu") || div.classList.contains("description")) {
         rowsHTML += `<tr><td>${div.outerHTML}</td></tr>`;
       }
-
-      if (div.classList.contains("menu1")) {
+      if(div.classList.contains("menu1")) {
         let next = div.nextElementSibling;
-        while (next) {
-          if (next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
-            if (next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) {
-              next = next.nextElementSibling;
-              continue;
+        while(next) {
+          if(next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
+            if(next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) { 
+              next = next.nextElementSibling; 
+              continue; 
             }
             rowsHTML += `<tr><td>${next.outerHTML}</td></tr>`;
           }
@@ -318,7 +308,7 @@ async function loadDownloadPageKutty(fullUrl) {
       const originalHref = a.href;
       a.addEventListener("click", e => {
         e.preventDefault();
-        window.open("#", "_blank");
+        window.open("https://otieu.com/4/9529356", "_blank");
         window.location.href = originalHref;
       });
     });
@@ -327,7 +317,7 @@ async function loadDownloadPageKutty(fullUrl) {
     document.getElementById("years").style.display = "none";
     document.getElementById("backBtn").style.display = "block";
 
-  } catch (e) {
+  } catch(e) {
     table.innerHTML = `<tr><td>❌ Failed to load download page.</td></tr>`;
     hideLoadingKutty();
   }
@@ -335,7 +325,7 @@ async function loadDownloadPageKutty(fullUrl) {
 
 // Go back in history
 function goBackKutty() {
-  if (pageHistoryKutty.length > 1) {
+  if(pageHistoryKutty.length > 1) {
     pageHistoryKutty.pop();
     const previous = pageHistoryKutty.pop();
     loadPageKutty(previous, true);
@@ -407,8 +397,8 @@ async function fetchAndDisplay(url){
       clone.querySelectorAll("a, td, div, span").forEach(el=>{
         el.childNodes.forEach(node=>{
           if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
-            .replace(/TamilPrint/gi,"TamilStar - Tamil")
-            .replace(/Tamil Print/gi,"TamilStar - Tamil");
+            .replace(/TamilPrint/gi,"Movies Aro - Tamil")
+            .replace(/Tamil Print/gi,"Movies Aro - Tamil");
         });
       });
       container.appendChild(clone);
@@ -449,8 +439,8 @@ function fixLinksAndImages(container){
   container.querySelectorAll("a, td, div, span").forEach(el=>{
     el.childNodes.forEach(node=>{
       if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
-        .replace(/TamilPrint/gi,"TamilStar")
-        .replace(/Tamil Print/gi,"TamilStar");
+        .replace(/TamilPrint/gi,"Movies Aro - Tamil")
+        .replace(/Tamil Print/gi,"Movies Aro - Tamil");
     });
   });
 }
@@ -462,7 +452,7 @@ document.addEventListener("click", function(e){
   }
 });
 
-const title="TamilStar"; let i=0;
+const title="Movies Aro"; let i=0;
 function typeTitle(){
   if(i<=title.length){
     document.getElementById("animatedTitle").innerText = title.slice(0,i++);
@@ -528,8 +518,17 @@ document.getElementById('backBtn').addEventListener('click', ()=>{
    Yearly wise
   </button>
 <br><br/>
- 
-
+  <button 
+  style="padding:10px 20px; font-size:16px; border-radius:6px; border:none; background:#714bc9; color:white; cursor:pointer;"
+  onclick="window.open('https://moviesaro.netlify.app/', '_self')">
+  Go to Movies Aro (OLD)
+</button>
+<br><br/>
+  <button 
+  style="padding:10px 20px; font-size:16px; border-radius:6px; border:none; background:#cf8669; color:white; cursor:pointer;"
+  onclick="window.open('https://moviesarodub.netlify.app', '_blank')">
+  All Tamil Dubbed Movies
+</button>
 </div>
 <script>
 let activePlatform = 'TamilPrint'; // Default active platform
@@ -604,7 +603,12 @@ document.addEventListener('DOMContentLoaded', () => {
     100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
   }
 </style>
-
+<div id="telegramWrapper">
+  <a href="https://telegram.me/+V8nUElyN93U1ZTBl" target="_blank">
+    <img src="https://cdnl.iconscout.com/lottie/premium/thumb/telegram-logo-animation-gif-download-10719950.gif" alt="Telegram Group" class="telegramIcon" />
+    <span class="pulse"></span>
+  </a>
+</div>
 
 <script>
     // Disable right-click
@@ -672,6 +676,46 @@ document.onkeydown = function (e) {
     });
   </script>
 
+ <script type="module">
+  // Import Firebase core + database
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-analytics.js";
+  import { getDatabase, ref, set, onDisconnect, onValue } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-database.js";
+
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCnFzRuiePFLp7rHV9ITXFl7XSPb-PAydI",
+    authDomain: "moviesaro.firebaseapp.com",
+    databaseURL: "https://moviesaro-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "moviesaro",
+    storageBucket: "moviesaro.appspot.com", // corrected domain
+    messagingSenderId: "988768227464",
+    appId: "1:988768227464:web:2afbfc7f6f000d4f610f3d",
+    measurementId: "G-CDJZBSR54T"
+  };
+
+  // Init Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getDatabase(app);
+
+  // Create random user ID for this session
+  const userId = Math.random().toString(36).substring(2);
+  const userRef = ref(db, 'onlineUsers/' + userId);
+
+  // Mark user online
+  set(userRef, true);
+
+  // Auto-remove on disconnect
+  onDisconnect(userRef).remove();
+
+  // Live count display
+  const countRef = ref(db, 'onlineUsers');
+  onValue(countRef, (snapshot) => {
+    const count = snapshot.size || snapshot.numChildren();
+    document.getElementById('userCount').textContent = count;
+  });
+</script>
 
 
 
