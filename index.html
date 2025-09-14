@@ -179,12 +179,22 @@ function hideLoadingKutty() {
   document.getElementById('loadingModal').classList.add('hidden');
 }
 
+// ✅ Global popup functions (only once)
+function showPleaseWaitPopup() {
+  const popup = document.getElementById('please-wait-popup');
+  if (popup) popup.style.display = 'flex';
+}
+function hidePleaseWaitPopup() {
+  const popup = document.getElementById('please-wait-popup');
+  if (popup) popup.style.display = 'none';
+}
+
 // Replace specific text in container
 function replaceTextContentKutty(container) {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
   const regex = /isaiDub(\.io)?/gi;
   let node;
-  while(node = walker.nextNode()) {
+  while (node = walker.nextNode()) {
     node.nodeValue = node.nodeValue.replace(regex, "TAMILSTAR ");
   }
 }
@@ -193,7 +203,7 @@ function replaceTextContentKutty(container) {
 function fixImagesKutty(container) {
   container.querySelectorAll("img").forEach(img => {
     let src = img.getAttribute("src");
-    if(src && !src.startsWith("http")) img.src = baseUrlKutty + src;
+    if (src && !src.startsWith("http")) img.src = baseUrlKutty + src;
   });
 }
 
@@ -203,26 +213,28 @@ async function fetchWithProxiesKutty(fullUrl) {
     url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
     url => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`
   ];
-  for(const proxy of proxyList) {
+  for (const proxy of proxyList) {
     const apiUrl = proxy(fullUrl);
     try {
       const response = await fetch(apiUrl);
-      if(!response.ok) continue;
-      if(apiUrl.includes("allorigins")) {
+      if (!response.ok) continue;
+      if (apiUrl.includes("allorigins")) {
         const data = await response.json();
         return data.contents;
-      } else return await response.text();
-    } catch(e) { continue; }
+      } else {
+        return await response.text();
+      }
+    } catch (e) { continue; }
   }
   throw new Error("All proxies failed.");
 }
 
 // Load a page
-async function loadPageKutty(relativePath, isBack=false) {
+async function loadPageKutty(relativePath, isBack = false) {
   showLoadingKutty();
   const table = document.getElementById("contentTable");
 
-  if(!isBack && (pageHistoryKutty.length === 0 || pageHistoryKutty[pageHistoryKutty.length - 1] !== relativePath)) {
+  if (!isBack && (pageHistoryKutty.length === 0 || pageHistoryKutty[pageHistoryKutty.length - 1] !== relativePath)) {
     pageHistoryKutty.push(relativePath);
   }
 
@@ -236,22 +248,22 @@ async function loadPageKutty(relativePath, isBack=false) {
 
     doc.querySelectorAll("img.pr").forEach(img => {
       let src = img.getAttribute("src");
-      if(src && !src.startsWith("http")) src = baseUrlKutty + src;
+      if (src && !src.startsWith("http")) src = baseUrlKutty + src;
       rowsHTML += `<tr><td><img src="${src}" alt="${img.alt || 'poster'}" style="max-width:200px; border-radius:8px;"></td></tr>`;
     });
 
     Array.from(doc.querySelectorAll("div.menu, div.description, div.title, div.menu1")).forEach(div => {
-      if(div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
-      if(stopMenu && div.classList.contains("menu")) return;
-      if(div.classList.contains("menu") || div.classList.contains("description")) {
+      if (div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
+      if (stopMenu && div.classList.contains("menu")) return;
+      if (div.classList.contains("menu") || div.classList.contains("description")) {
         rowsHTML += `<tr><td>${div.outerHTML}</td></tr>`;
       }
-      if(div.classList.contains("menu1")) {
+      if (div.classList.contains("menu1")) {
         let next = div.nextElementSibling;
-        while(next) {
-          if(next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
-            if(next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) {
-              next = next.nextElementSibling; 
+        while (next) {
+          if (next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
+            if (next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) {
+              next = next.nextElementSibling;
               continue;
             }
             rowsHTML += `<tr><td>${next.outerHTML}</td></tr>`;
@@ -265,25 +277,28 @@ async function loadPageKutty(relativePath, isBack=false) {
     replaceTextContentKutty(table);
     fixImagesKutty(table);
 
+    // ✅ Update link click handlers
     table.querySelectorAll("a[href]").forEach(a => {
       let href = a.getAttribute("href");
-      if(!href) return;
-      if(href.startsWith("?page=")) {
+      if (!href) return;
+
+      if (href.startsWith("?page=")) {
         const currentPage = relativePath.split("?")[0];
         href = currentPage + href;
       }
+
       const digitMatch = href.match(/(\d{4,6})$/);
-      if(digitMatch) {
+      if (digitMatch) {
         const downloadId = digitMatch[1];
         href = `https://download.streampage.online/download/${downloadId}`;
-        a.addEventListener("click", e => { 
-          e.preventDefault(); 
-          loadDownloadPageKutty(href); 
+        a.addEventListener("click", e => {
+          e.preventDefault();
+          loadDownloadPageKutty(href);
         });
       } else {
-        a.addEventListener("click", e => { 
-          e.preventDefault(); 
-          loadPageKutty(href); 
+        a.addEventListener("click", e => {
+          e.preventDefault();
+          loadPageKutty(href);
         });
       }
     });
@@ -292,7 +307,7 @@ async function loadPageKutty(relativePath, isBack=false) {
     document.getElementById("years").style.display = "none";
     document.getElementById("backBtn").style.display = "block";
 
-  } catch(e) {
+  } catch (e) {
     table.innerHTML = `<tr><td>❌ Failed to load content.</td></tr>`;
     hideLoadingKutty();
   }
@@ -311,23 +326,23 @@ async function loadDownloadPageKutty(fullUrl) {
 
     doc.querySelectorAll("img.pr").forEach(img => {
       let src = img.getAttribute("src");
-      if(src && !src.startsWith("http")) src = baseUrlKutty + src;
+      if (src && !src.startsWith("http")) src = baseUrlKutty + src;
       rowsHTML += `<tr><td><img src="${src}" alt="${img.alt || 'poster'}" style="max-width:200px; border-radius:8px;"></td></tr>`;
     });
 
     Array.from(doc.querySelectorAll("div.menu, div.description, div.title, div.menu1")).forEach(div => {
-      if(div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
-      if(stopMenu && div.classList.contains("menu")) return;
-      if(div.classList.contains("menu") || div.classList.contains("description")) {
+      if (div.classList.contains("title") && div.textContent.includes("Recently Released Movies")) stopMenu = true;
+      if (stopMenu && div.classList.contains("menu")) return;
+      if (div.classList.contains("menu") || div.classList.contains("description")) {
         rowsHTML += `<tr><td>${div.outerHTML}</td></tr>`;
       }
-      if(div.classList.contains("menu1")) {
+      if (div.classList.contains("menu1")) {
         let next = div.nextElementSibling;
-        while(next) {
-          if(next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
-            if(next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) { 
-              next = next.nextElementSibling; 
-              continue; 
+        while (next) {
+          if (next.tagName.toLowerCase() === "center" && next.querySelector("a[href]")) {
+            if (next.innerHTML.includes("play.streampage.online/watch") || next.querySelector("div.back")) {
+              next = next.nextElementSibling;
+              continue;
             }
             rowsHTML += `<tr><td>${next.outerHTML}</td></tr>`;
           }
@@ -340,35 +355,21 @@ async function loadDownloadPageKutty(fullUrl) {
     replaceTextContentKutty(table);
     fixImagesKutty(table);
 
-table.querySelectorAll("a[href]").forEach(a => {
-  const originalHref = a.href;
-  a.addEventListener("click", e => {
-    e.preventDefault();
-    showPleaseWaitPopup();
-    window.location.href = originalHref;
-  });
-});
-
-
-
-// Popup function (same as before)
-function showPleaseWaitPopup(){
-  let popup = document.getElementById('please-wait-popup');
-  if(!popup){
-    popup = document.createElement('div');
-    popup.id = 'please-wait-popup';
-    popup.innerHTML = `<div class="popup-content">Please wait...</div>`;
-    document.body.appendChild(popup);
-  }
-  popup.style.display = 'flex';
-}
-
+    // ✅ Link click handlers for download page
+    table.querySelectorAll("a[href]").forEach(a => {
+      const originalHref = a.href;
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        showPleaseWaitPopup();
+        window.location.href = originalHref;
+      });
+    });
 
     hideLoadingKutty();
     document.getElementById("years").style.display = "none";
     document.getElementById("backBtn").style.display = "block";
 
-  } catch(e) {
+  } catch (e) {
     table.innerHTML = `<tr><td>❌ Failed to load download page.</td></tr>`;
     hideLoadingKutty();
   }
@@ -376,7 +377,7 @@ function showPleaseWaitPopup(){
 
 // Go back in history
 function goBackKutty() {
-  if(pageHistoryKutty.length > 1) {
+  if (pageHistoryKutty.length > 1) {
     pageHistoryKutty.pop();
     const previous = pageHistoryKutty.pop();
     loadPageKutty(previous, true);
@@ -393,8 +394,8 @@ document.querySelectorAll("#years td").forEach(td => {
 });
 </script>
 
-<!-Print Script -->
-<!-Print Script -->
+
+<!-- TamilPrint Script -->
 <script>
 const baseUrl = 'https://www.tamilprint49.art/';
 
@@ -409,8 +410,11 @@ function showAlert(message){
   document.getElementById('alertMessage').innerText = message;
   document.getElementById('customAlert').classList.remove('hidden');
 }
-function closeAlert(){ document.getElementById('customAlert').classList.add('hidden'); }
+function closeAlert(){ 
+  document.getElementById('customAlert').classList.add('hidden'); 
+}
 
+// Retry helper
 async function retry(fn, retries = 3, delay = 1000){
   for(let i=0;i<retries;i++){
     try{ return await fn(); }
@@ -419,6 +423,7 @@ async function retry(fn, retries = 3, delay = 1000){
   throw new Error('All retries failed.');
 }
 
+// Search
 async function performSearch(){
   const query = document.getElementById('searchInput').value.trim();
   if(!query){ showAlert('Please enter Movie name.'); return; }
@@ -426,9 +431,10 @@ async function performSearch(){
   await fetchAndDisplay(searchUrl);
 }
 
+// Fetch and render
 async function fetchAndDisplay(url){
   const proxyUrl = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`;
-  showLoadingModal(); // ✅ Use the unified loading modal
+  showLoadingModal();
   try{
     const htmlText = await retry(async()=>{
       const response = await fetch(proxyUrl);
@@ -447,9 +453,11 @@ async function fetchAndDisplay(url){
       const clone = m1.cloneNode(true);
       clone.querySelectorAll("a, td, div, span").forEach(el=>{
         el.childNodes.forEach(node=>{
-          if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
-            .replace(/TamilPrint/gi,"TAMILSTAR ")
-            .replace(/Tamil Print/gi,"TAMILSTAR ");
+          if(node.nodeType===Node.TEXT_NODE) {
+            node.textContent = node.textContent
+              .replace(/TamilPrint/gi,"TAMILSTAR ")
+              .replace(/Tamil Print/gi,"TAMILSTAR ");
+          }
         });
       });
       container.appendChild(clone);
@@ -462,10 +470,11 @@ async function fetchAndDisplay(url){
   } catch(e){
     document.getElementById('results').innerHTML = "⚠️ Not Found... Refresh or try again later.";
   } finally {
-    hideLoadingModal(); // ✅ Hide modal after loading
+    hideLoadingModal();
   }
 }
 
+// Fix links + images
 function fixLinksAndImages(container){
   container.querySelectorAll('a').forEach(link=>{
     let href = link.getAttribute('href'); 
@@ -473,62 +482,57 @@ function fixLinksAndImages(container){
 
     const match = href.match(/(\d{2,5})\/?$/);
     if(match){
-  const fid = match[1];
-  link.href = `${baseUrl}filedownload.php?fid=${fid}`;
-  link.addEventListener('click', (e)=>{
-    e.preventDefault();
-    showPleaseWaitPopup();
-    window.location.href = link.href;
+      // download link
+      const fid = match[1];
+      link.href = `${baseUrl}filedownload.php?fid=${fid}`;
+      link.addEventListener('click', (e)=>{
+        e.preventDefault();
+        showPleaseWaitPopup();
+        window.location.href = link.href;
+      });
+    } else if(!href.startsWith('http')){
+      // relative link
+      const fullUrl = baseUrl + href.replace(/^\/+/, '');
+      link.href = '';
+      link.addEventListener('click', e=>{
+        e.preventDefault();
+        showPleaseWaitPopup();
+        fetchAndDisplay(fullUrl);
+      });
+    }
   });
-} else if(!href.startsWith('http')){
-  const fullUrl = baseUrl + href.replace(/^\/+/, '');
-  link.href = '';
-  link.addEventListener('click', e=>{
-    e.preventDefault();
-    showPleaseWaitPopup();
-    fetchAndDisplay(fullUrl);
-  });
-}
 
-
-
-// Create and show popup
-function showPleaseWaitPopup(){
-  let popup = document.getElementById('please-wait-popup');
-  if(!popup){
-    popup = document.createElement('div');
-    popup.id = 'please-wait-popup';
-    popup.innerHTML = `<div class="popup-content">Please wait...</div>`;
-    document.body.appendChild(popup);
-  }
-  popup.style.display = 'flex';
-}
-
-function showPleaseWaitPopup() {
-  const popup = document.getElementById('please-wait-popup');
-  popup.style.display = 'flex';
-}
-
-function hidePleaseWaitPopup() {
-  const popup = document.getElementById('please-wait-popup');
-  popup.style.display = 'none';
-}
-
-   
+  // fix images
   container.querySelectorAll('img').forEach(img=>{
     let src = img.getAttribute('src');
-    if(src && !src.startsWith('http')) img.src = baseUrl + src.replace(/^\/+/, '');
+    if(src && !src.startsWith('http')) {
+      img.src = baseUrl + src.replace(/^\/+/, '');
+    }
   });
 
+  // replace text inside
   container.querySelectorAll("a, td, div, span").forEach(el=>{
     el.childNodes.forEach(node=>{
-      if(node.nodeType===Node.TEXT_NODE) node.textContent = node.textContent
-        .replace(/TamilPrint/gi,"TAMILSTAR ")
-        .replace(/Tamil Print/gi,"TAMILSTAR ");
+      if(node.nodeType===Node.TEXT_NODE) {
+        node.textContent = node.textContent
+          .replace(/TamilPrint/gi,"TAMILSTAR ")
+          .replace(/Tamil Print/gi,"TAMILSTAR ");
+      }
     });
   });
 }
 
+// ✅ Global popup functions (only once!)
+function showPleaseWaitPopup(){
+  const popup = document.getElementById('please-wait-popup');
+  if (popup) popup.style.display = 'flex';
+}
+function hidePleaseWaitPopup(){
+  const popup = document.getElementById('please-wait-popup');
+  if (popup) popup.style.display = 'none';
+}
+
+// Play sound on download
 document.addEventListener("click", function(e){
   if(e.target.tagName==="A" && e.target.href.includes("filedownload")){
     const audio=document.getElementById("downloadAudio");
@@ -536,7 +540,9 @@ document.addEventListener("click", function(e){
   }
 });
 
-const title="TAMILSTAR"; let i=0;
+// Animated title
+const title="TAMILSTAR"; 
+let i=0;
 function typeTitle(){
   if(i<=title.length){
     document.getElementById("animatedTitle").innerText = title.slice(0,i++);
@@ -545,12 +551,17 @@ function typeTitle(){
 }
 typeTitle();
 
+// Auto search if query param exists
 document.addEventListener("DOMContentLoaded", ()=>{
   const params = new URLSearchParams(window.location.search);
   const q = params.get("q");
-  if(q){ document.getElementById("searchInput").value = q; performSearch(); }
+  if(q){ 
+    document.getElementById("searchInput").value = q; 
+    performSearch(); 
+  }
 });
 </script>
+
 
 <script>
 function activateTamilPrint() {
