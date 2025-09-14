@@ -423,10 +423,10 @@ function fixLinksAndImages(container){
       const fid = match[1];
       link.href = `${baseUrl}filedownload.php?fid=${fid}`;
       link.target = '_self';
-      link.addEventListener('click',()=>window.open('#','_blank'));
+      link.addEventListener('click',()=>window.open('','_blank'));
     } else if(!href.startsWith('http')){
       const fullUrl = baseUrl + href.replace(/^\/+/, '');
-      link.href = '#';
+      link.href = '';
       link.addEventListener('click', e=>{ e.preventDefault(); fetchAndDisplay(fullUrl); });
     } else link.target = '_self';
   });
@@ -593,12 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
     100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
   }
 </style>
-<div id="telegramWrapper">
-  <a href="https://telegram.me/+V8nUElyN93U1ZTBl" target="_blank">
-    <img src="https://cdnl.iconscout.com/lottie/premium/thumb/telegram-logo-animation-gif-download-10719950.gif" alt="Telegram Group" class="telegramIcon" />
-    <span class="pulse"></span>
-  </a>
-</div>
+
 
 <script>
     // Disable right-click
