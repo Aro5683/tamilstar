@@ -306,12 +306,11 @@ async function loadDownloadPageKutty(fullUrl) {
 
     table.querySelectorAll("a[href]").forEach(a => {
       const originalHref = a.href;
-a.addEventListener("click", e => {
-  e.preventDefault();
-  showPleaseWaitPopup();             // show "Please wait..." popup
-  window.open(originalHref, "_blank"); // open target in new tab
-});
-     
+ a.addEventListener("click", e => {
+        e.preventDefault();
+       
+        window.open(originalHref, "_blank");
+      });
     });
 
     hideLoadingKutty();
